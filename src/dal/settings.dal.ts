@@ -1,30 +1,38 @@
-import { Knex } from 'knex'
-import { Settings } from '../entity/settings'
+import { Db } from 'mongodb'
+import { Settings, SettingsFields } from '../entity/settings'
+
+const COLLECTION_NAME = 'settings'
 
 export interface SettingsDAL {
     getSettings(): Promise<Settings | undefined>
-    createOrUpdateSettings(data: Partial<Omit<Settings, 'id' | 'createdAt' | 'updatedAt'>>): Promise<Settings>
+    createOrUpdateSettings(data: Partial<SettingsFields>): Promise<Settings>
 }
 
-export const createSettingsDAL = (knex: Knex): SettingsDAL => {
+export const createSettingsDAL = (db: Db): SettingsDAL => {
+    const collection = db.collection<Settings>(COLLECTION_NAME)
+
     return {
         async getSettings(): Promise<Settings | undefined> {
-            return await knex<Settings>('settings').first()
+            const settings = await collection.findOne({})
+            return settings ?? undefined
         },
 
         async createOrUpdateSettings(data): Promise<Settings> {
-            const existing = await knex<Settings>('settings').first()
+            const now = new Date()
+            const existing = await collection.findOne({})
 
             if (existing) {
-                const [updated] = await knex('settings')
-                    .where('id', existing.id)
-                    .update({ ...data, updated_at: knex.fn.now() })
-                    .returning('*')
-                return updated as Settings
+                await collection.updateOne({ _id: existing._id }, { $set: { ...data, updatedAt: now } })
+                return { ...existing, ...data, updatedAt: now }
             }
 
-            const [created] = await knex('settings').insert(data).returning('*')
-            return created as Settings
+            const settings: Settings = {
+                ...(data as SettingsFields),
+                createdAt: now,
+                updatedAt: now,
+            }
+            const result = await collection.insertOne(settings)
+            return { ...settings, _id: result.insertedId }
         },
     }
 }

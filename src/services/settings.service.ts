@@ -1,12 +1,11 @@
 import { SettingsDAL } from '../dal/settings.dal';
-import { Settings } from '../entity/settings';
 import { SettingsDto } from '../dto/settings.dto';
-import { toSettingsDto } from '../mappers/settings.mapper';
+import { toSettingsDto, fromSettingsDto } from '../mappers/settings.mapper';
 import { NotFoundError } from '../errors/not-found.error';
 
 export interface SettingsService {
     getSettings(): Promise<SettingsDto>;
-    createOrUpdateSettings(data: Partial<Omit<Settings, 'id' | 'createdAt' | 'updatedAt'>>): Promise<SettingsDto>;
+    createOrUpdateSettings(data: Partial<SettingsDto>): Promise<SettingsDto>;
 }
 
 export const createSettingsService = ({ settingsDAL }: { settingsDAL: SettingsDAL }): SettingsService => {
@@ -18,7 +17,7 @@ export const createSettingsService = ({ settingsDAL }: { settingsDAL: SettingsDA
         },
 
         async createOrUpdateSettings(data): Promise<SettingsDto> {
-            const settings = await settingsDAL.createOrUpdateSettings(data);
+            const settings = await settingsDAL.createOrUpdateSettings(fromSettingsDto(data));
             return toSettingsDto(settings);
         },
     };
