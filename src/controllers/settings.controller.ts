@@ -10,9 +10,9 @@ export const createSettingsController = ({ settingsService }: { settingsService:
             if (!settings) {
                 return res.status(404).json({ message: 'Settings not found' })
             }
-            res.json(settings)
+            return res.json(settings)
         } catch (err) {
-            next(err)
+            return next(err)
         }
     })
 
@@ -23,9 +23,9 @@ export const createSettingsController = ({ settingsService }: { settingsService:
                 currency,
                 timezone,
             })
-            res.json(settings)
+            return res.json(settings)
         } catch (err) {
-            next(err)
+            return next(err)
         }
     })
 

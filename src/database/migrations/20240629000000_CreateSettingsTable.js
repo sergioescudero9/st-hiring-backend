@@ -3,15 +3,12 @@
  * @returns { Promise<void> }
  */
 exports.up = function (knex) {
-    return knex.schema.createTable('events', table => {
+    return knex.schema.createTable('settings', table => {
         table.increments('id').primary();
-        table.string('name').notNullable();
-        table.string('description').notNullable();
-        table.string('location').nullable();
-        table.dateTime('date').notNullable();
+        table.string('currency').notNullable().defaultTo('USD');
+        table.string('timezone').notNullable().defaultTo('UTC');
         table.timestamps(true, true);
     });
-
 };
 
 /**
@@ -19,5 +16,5 @@ exports.up = function (knex) {
  * @returns { Promise<void> }
  */
 exports.down = function (knex) {
-    return knex.schema.dropTable('events');
+    return knex.schema.dropTable('settings');
 };
