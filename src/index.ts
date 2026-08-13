@@ -11,6 +11,7 @@ import { createSettingsDAL } from './dal/settings.dal';
 import { createSettingsController } from './controllers/settings.controller';
 import { createEventsService } from './services/events.service';
 import { createSettingsService } from './services/settings.service';
+import mongoSanitize from 'express-mongo-sanitize';
 import { errorHandler } from './middleware/error-handler';
 
 const Knex = knex(dbConfig.development);
@@ -32,6 +33,7 @@ const start = async () => {
 
     app.use(cors());
     app.use(express.json());
+    app.use(mongoSanitize());
 
     app.use('/health', (_req, res) => {
         res.json({ status: 'ok' });
