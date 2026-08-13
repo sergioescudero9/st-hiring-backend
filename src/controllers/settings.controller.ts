@@ -6,11 +6,7 @@ export const createSettingsController = ({ settingsService }: { settingsService:
 
     router.get('/', async (_req: Request, res: Response, next: NextFunction) => {
         try {
-            const settings = await settingsService.getSettings()
-            if (!settings) {
-                return res.status(404).json({ message: 'Settings not found' })
-            }
-            return res.json(settings)
+            return res.json(await settingsService.getSettings())
         } catch (err) {
             return next(err)
         }
